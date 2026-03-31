@@ -6,7 +6,7 @@ import asyncio
 pygame.init()
 
 # Setting the screen size
-WIDTH, HEIGHT = 1080, 720
+WIDTH, HEIGHT = 720, 480
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Brick Breaker")
 
