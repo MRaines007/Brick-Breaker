@@ -5,30 +5,25 @@ import asyncio
 
 pygame.init()
 
-# Setting the screen size
 WIDTH, HEIGHT = 720, 480
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Brick Breaker")
 
-# Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
-# Paddle things
 PADDLE_WIDTH = 100
 PADDLE_HEIGHT = 15
 paddle_speed = 7
 paddle = pygame.Rect(random.randint(0, WIDTH - PADDLE_WIDTH), HEIGHT - 40, PADDLE_WIDTH, PADDLE_HEIGHT)
 
-# Ball things
 BALL_RADIUS = 10
 ball_speed_x, ball_speed_y = 4, -4
 ball = pygame.Rect(random.randint(0, WIDTH - BALL_RADIUS * 2), HEIGHT // 2, BALL_RADIUS * 2, BALL_RADIUS * 2)
 
-# Brick settings
 BRICK_ROWS, BRICK_COLS = 5, 8
 BRICK_WIDTH = WIDTH // BRICK_COLS
 BRICK_HEIGHT = 30
@@ -47,16 +42,9 @@ def regenerate_bricks():
     return new_bricks
 
 bricks = regenerate_bricks()
-
-# Score
 score = 0
-font = pygame.font.Font("Press_Start_2P_Font/PressStart2P-Regular.ttf", 24)
-
-# Track last milestone for speed increase
 last_speed_milestone = 0
 
-
-# Game loop
 clock = pygame.time.Clock()
 running = True
 game_over = False
@@ -71,17 +59,20 @@ async def main():
     global score
     global last_speed_milestone
     global paddle_speed
+    
+    try:
+        font = pygame.font.Font("Press_Start_2P_Font/PressStart2P-Regular.ttf", 24)
+    except:
+        font = pygame.font.SysFont(None, 24)
 
     while running:
         screen.fill(BLACK)
 
-        # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-        # GAME OVER SCREEN
         if game_over:
             screen.fill(BLACK)
 
@@ -95,15 +86,11 @@ async def main():
 
             keys = pygame.key.get_pressed()
             if keys[pygame.K_SPACE]:
-                # Reset everything
                 ball.x = random.randint(0, WIDTH - BALL_RADIUS * 2)
                 ball.y = HEIGHT // 2
-
                 ball_speed_x, ball_speed_y = 4, -4
-
                 paddle.x = random.randint(0, WIDTH - PADDLE_WIDTH)
                 paddle.y = HEIGHT - 40
-
                 score = 0
                 paddle_speed = 7
                 last_speed_milestone = 0
@@ -111,20 +98,18 @@ async def main():
                 game_over = False
 
             clock.tick(60)
+            await asyncio.sleep(0)
             continue
 
-        # Paddle movement
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and paddle.left > 0:
             paddle.x -= paddle_speed
         if keys[pygame.K_RIGHT] and paddle.right < WIDTH:
             paddle.x += paddle_speed
 
-        # Move ball
         ball.x += ball_speed_x
         ball.y += ball_speed_y
 
-        # Ball collision with walls
         if ball.left <= 0 or ball.right >= WIDTH:
             ball_speed_x *= -1
         if ball.top <= 0:
@@ -132,43 +117,33 @@ async def main():
         if ball.bottom >= HEIGHT:
             game_over = True
 
-        # Ball collision with paddle
         if ball.colliderect(paddle):
             ball_speed_y *= -1
 
-        # Ball collision with bricks
         hit_index = ball.collidelist(bricks)
         if hit_index != -1:
             bricks.pop(hit_index)
             ball_speed_y *= -1
             score += 10
 
-        # SPEED INCREASE EVERY 20 POINTS
         if score >= last_speed_milestone + 20:
             ball_speed_x += 0.1 if ball_speed_x > 0 else -0.1
             ball_speed_y += 0.1 if ball_speed_y > 0 else -0.1
             paddle_speed += 0.1
             last_speed_milestone += 20
 
-        # REGENERATE BRICKS ONLY WHEN ALL ARE GONE
         if len(bricks) == 0:
             bricks = regenerate_bricks()
 
-        # Draw paddle
         pygame.draw.rect(screen, BLUE, paddle)
-
-        # Draw ball
         pygame.draw.ellipse(screen, WHITE, ball)
 
-        # Draw bricks
         for brick in bricks:
             pygame.draw.rect(screen, RED, brick)
 
-        # Draw score
         score_text = font.render(f"Score: {score}", True, GREEN)
         screen.blit(score_text, (10, 10))
 
-        # Update display
         pygame.display.flip()
         clock.tick(60)
         await asyncio.sleep(0)
