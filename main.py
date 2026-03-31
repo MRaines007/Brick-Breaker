@@ -5,7 +5,7 @@ import asyncio
 
 pygame.init()
 
-WIDTH, HEIGHT = 720, 480
+WIDTH, HEIGHT = 1080, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Brick Breaker")
 
@@ -42,7 +42,13 @@ def regenerate_bricks():
     return new_bricks
 
 bricks = regenerate_bricks()
+
 score = 0
+try:
+    font = pygame.font.Font("Press_Start_2P_Font/PressStart2P-Regular.ttf", 24)
+except:
+    font = pygame.font.SysFont(None, 24)
+
 last_speed_milestone = 0
 
 clock = pygame.time.Clock()
@@ -59,11 +65,6 @@ async def main():
     global score
     global last_speed_milestone
     global paddle_speed
-    
-    try:
-        font = pygame.font.Font("Press_Start_2P_Font/PressStart2P-Regular.ttf", 24)
-    except:
-        font = pygame.font.SysFont(None, 24)
 
     while running:
         screen.fill(BLACK)
