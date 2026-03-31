@@ -71,7 +71,6 @@ async def main():
     global score
     global last_speed_milestone
     global paddle_speed
-    global regenerate_bricks()
 
     while running:
         screen.fill(BLACK)
@@ -172,6 +171,7 @@ async def main():
         # Update display
         pygame.display.flip()
         clock.tick(60)
+        await asyncio.sleep(0)
 
 if __name__ == "__main__":
     asyncio.run(main())
